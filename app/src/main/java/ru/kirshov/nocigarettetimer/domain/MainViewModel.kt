@@ -2,16 +2,24 @@ package ru.kirshov.nocigarettetimer.domain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.kirshov.nocigarettetimer.data.AppState
 import ru.kirshov.nocigarettetimer.presentation.UiState
-import ru.kirshov.nocigarettetimer.presentation.toUi
+import ru.kirshov.nocigarettetimer.presentation.binding
 
 class MainViewModel(
     private val timerStateActions: TimerStateActions
 ) : ViewModel() {
-    fun update(): Flow<UiState> = timerStateActions.subscriptionState().map { it.toUi() }
+    init {
+        viewModelScope.launch {
+            timerStateActions.subscriptionState().collect{
+                _state.emit(it)
+            }
+        }
+    }
+    private val _state = MutableStateFlow<AppState>(AppState.LoadingState)
+    fun update():Flow<UiState> = _state.asStateFlow().map { it.binding() }
     fun startTimer() {
         viewModelScope.launch {
             timerStateActions.startTimer()

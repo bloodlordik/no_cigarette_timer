@@ -1,21 +1,22 @@
 package ru.kirshov.nocigarettetimer.data
 
+
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
+import kotlin.time.Duration
 
+
+@Serializable
 data class TimerGlobalState(
-    val lastStart:LocalDateTime,
-    val isProcess:Boolean,
-    val totalTry:Int
-){
-    companion object{
-        fun newInstance():TimerGlobalState{
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val lastStart:LocalDateTime?=null,
+    val totalTry:Int=0,
+    @Serializable(with = DurationSerializer::class)
+    val maxDuration: Duration = Duration.ZERO,
+    val status: Status=Status.EMPTY
+)
 
-            return TimerGlobalState(
-                lastStart = LocalDateTime.now(),
-                isProcess = false,
-                totalTry = 0
-            )
-        }
-
-    }
+enum class Status{
+    FINISH, EMPTY, STOP, PROCESS
 }
+
